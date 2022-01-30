@@ -219,6 +219,7 @@ if __name__ == '__main__':
             # Player
             players.draw(screen)
             players.update()
+            print(len(players))
 
             # Obstacle Group
             obstacle_group.draw(screen)

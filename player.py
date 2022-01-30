@@ -35,7 +35,9 @@ class Player(pygame.sprite.Sprite):
         if self.game_mode == "Neuroevolution":
             self.fitness = 0  # Initial fitness
 
-            layer_sizes = [3, 10, 2]  # TODO (Design your architecture here by changing the values)
+            self.first_layer_size = 6
+            self.hidden_layer_size = 10
+            layer_sizes = [self.first_layer_size, self.hidden_layer_size, 2]
             self.nn = NeuralNetwork(layer_sizes)
 
     def think(self, screen_width, screen_height, obstacles, player_x, player_y):
@@ -52,12 +54,32 @@ class Player(pygame.sprite.Sprite):
         :param player_y: 'y' position of the player
         """
         # TODO (change player's gravity here by calling self.change_gravity)
-
-        # This is a test code that changes the gravity based on a random number. Remove it before your implementation.
-        if random.randint(0, 2):
+        import numpy as np
+        input_vector = np.zeros(self.first_layer_size)
+        # for i in range(min(self.first_layer_size, len(obstacles))):
+        #     if i % 2 == 0:
+        #         input_vector[[i/2]] = obstacles[i]['x']
+        #     else:
+        #         input_vector[[(i-1)/2]] = obstacles[i]['y']
+        if len(obstacles) >= 1:
+            input_vector[0] = obstacles[0]['x']
+            input_vector[1] = obstacles[0]['y'] - player_y
+        if len(obstacles) >= 2:
+            input_vector[2] = obstacles[1]['x']
+            input_vector[3] = obstacles[1]['y'] - player_y
+        if len(obstacles) >= 3:
+            input_vector[4] = obstacles[2]['x']
+            input_vector[5] = obstacles[2]['y'] - player_y
+        output_vector = self.nn.forward(input_vector)
+        if output_vector[0][0] > output_vector[1][0]:
             self.change_gravity('left')
         else:
             self.change_gravity('right')
+        # This is a test code that changes the gravity based on a random number. Remove it before your implementation.
+        # if random.randint(0, 2):
+        #     self.change_gravity('left')
+        # else:
+        #     self.change_gravity('right')
 
     def change_gravity(self, new_gravity):
         """
